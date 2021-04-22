@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">CovidWorldData</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="confirmed_cases_title">Casos confirmados: </string>
-    <string name="death_people_title">Cantidad de personas fallecidas: </string>
+    <string name="confirmed_cases_title">Casos confirmados: %d</string>
+    <string name="death_people_title">Cantidad de personas fallecidas: %d</string>
+    <string name="date_title_format">%d de %s del %d</string>
 </resources>
