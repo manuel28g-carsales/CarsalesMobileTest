@@ -5,6 +5,6 @@ import com.manuel28g.carsales.covidworlddata.model.RequestBody
 import kotlinx.coroutines.flow.Flow
 
 interface CovidData {
-    fun getData(body: String)
-    fun getCurrentData()
+    fun getData(body: String):Flow<CovidInfo?>
+    fun getCurrentData():Flow<CovidInfo?>
 }

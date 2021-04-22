@@ -112,6 +112,7 @@
                 android:layout_height="50dp"
                 android:backgroundTint="@color/white"
                 android:text="Seleccione una fecha"
+                android:textAllCaps="false"
                 android:onClick="@{()->dataPicker.show()}"
                 android:textColor="@color/black"
                 />
