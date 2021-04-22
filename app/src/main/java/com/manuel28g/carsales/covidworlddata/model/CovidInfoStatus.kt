@@ -24,5 +24,5 @@ data class CovidInfoStatus(
     @SerializedName("active_diff")
     var activeDiff:Long,
     @SerializedName("fatality_rate")
-    var fatalityRate:Long
+    var fatalityRate:Double
 )

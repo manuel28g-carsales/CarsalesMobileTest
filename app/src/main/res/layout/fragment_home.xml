@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout>
     <data>
+        <import type="android.view.View"/>
         <variable
             name="dataPicker"
             type="android.app.DatePickerDialog" />
@@ -12,87 +13,108 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         xmlns:app="http://schemas.android.com/apk/res-auto">
-
-        <TextView
-            android:id="@+id/home_tv_title_date"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/home_cl_loading"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            android:layout_marginTop="100dp"
-            android:text="@{viewModel.date}"
-            style="@style/TitleDate"
-            />
-        <androidx.appcompat.widget.LinearLayoutCompat
-            android:id="@+id/home_ll_confirmed_cases"
-            app:layout_constraintTop_toBottomOf="@id/home_tv_title_date"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="20dp"
-            android:layout_marginTop="50dp">
+            android:layout_height="match_parent"
+            android:visibility="@{viewModel.isApiResponse?View.GONE:View.VISIBLE}">
+            <ProgressBar
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:padding="100dp"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <ImageView
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                app:srcCompat="@android:drawable/radiobutton_off_background"
-                app:tint="@color/black" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/home_cl_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="@{viewModel.isApiResponse?View.VISIBLE:View.GONE}">
+
             <TextView
-                android:id="@+id/home_tv_title_1"
-                android:layout_marginLeft="10dp"
+                android:id="@+id/home_tv_title_date"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="18dp"
-                android:textColor="@color/black"
-                android:text="@string/confirmed_cases_title"/>
-        </androidx.appcompat.widget.LinearLayoutCompat>
-
-        <androidx.appcompat.widget.LinearLayoutCompat
-            android:id="@+id/home_ll_total_death"
-            app:layout_constraintTop_toBottomOf="@id/home_ll_confirmed_cases"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="20dp"
-            android:layout_marginTop="10dp">
-
-            <ImageView
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                app:srcCompat="@android:drawable/radiobutton_off_background"
-                app:tint="@color/black" />
-            <TextView
-                android:id="@+id/home_tv_title_2"
-                android:layout_marginLeft="10dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:layout_marginTop="100dp"
+                android:text="@{String.format(@string/date_title_format,viewModel.day,viewModel.month,viewModel.year)}"
+                style="@style/TitleDate"
+                />
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/home_ll_confirmed_cases"
+                app:layout_constraintTop_toBottomOf="@id/home_tv_title_date"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="18dp"
-                android:textColor="@color/black"
-                android:text="@string/death_people_title"/>
-        </androidx.appcompat.widget.LinearLayoutCompat>
+                android:paddingHorizontal="20dp"
+                android:layout_marginTop="50dp">
 
-        <ImageView
-            android:id="@+id/home_iv_people"
-            app:layout_constraintTop_toBottomOf="@id/home_ll_total_death"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            android:layout_width="match_parent"
-            android:layout_marginTop="50dp"
-            android:layout_height="200dp"
-            android:src="@drawable/home"
-            android:paddingHorizontal="100dp"/>
-        <Button
-            android:id="@+id/home_bt_select_date"
-            app:layout_constraintTop_toBottomOf="@+id/home_iv_people"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginTop="100dp"
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:backgroundTint="@color/white"
-            android:text="Seleccione una fecha"
-            android:onClick="@{()->dataPicker.show()}"
-            android:textColor="@color/black"
-            />
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    app:srcCompat="@android:drawable/radiobutton_off_background"
+                    app:tint="@color/black" />
+                <TextView
+                    android:id="@+id/home_tv_title_1"
+                    android:layout_marginLeft="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="18dp"
+                    android:textColor="@color/black"
+                    android:text="@{String.format(@string/confirmed_cases_title,viewModel.confirmedCases)}"/>
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/home_ll_total_death"
+                app:layout_constraintTop_toBottomOf="@id/home_ll_confirmed_cases"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="20dp"
+                android:layout_marginTop="10dp">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    app:srcCompat="@android:drawable/radiobutton_off_background"
+                    app:tint="@color/black" />
+                <TextView
+                    android:id="@+id/home_tv_title_2"
+                    android:layout_marginLeft="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="18dp"
+                    android:textColor="@color/black"
+                    android:text="@{String.format(@string/death_people_title,viewModel.totalDeaths)}"/>
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <ImageView
+                android:id="@+id/home_iv_people"
+                app:layout_constraintTop_toBottomOf="@id/home_ll_total_death"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:layout_width="match_parent"
+                android:layout_marginTop="50dp"
+                android:layout_height="200dp"
+                android:src="@drawable/home"
+                android:paddingHorizontal="100dp"/>
+            <Button
+                android:id="@+id/home_bt_select_date"
+                app:layout_constraintTop_toBottomOf="@+id/home_iv_people"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginTop="100dp"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:backgroundTint="@color/white"
+                android:text="Seleccione una fecha"
+                android:onClick="@{()->dataPicker.show()}"
+                android:textColor="@color/black"
+                />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -10,5 +10,8 @@ import retrofit2.http.Query
 interface CovidDataAPI {
 
     @GET("reports/total")
+    fun getData(@Query(value="date") date:String): Call<CovidInfo>
+
+    @GET("reports/total")
     fun getData(): Call<CovidInfo>
 }
