@@ -15,32 +15,18 @@ import retrofit2.Response
 
 class CovidDataImpl(var api:CovidDataAPI,val callback: CovidInfoCallback):CovidData {
 
-    override fun getData(body:String){
-        GlobalScope.launch(Dispatchers.IO) {
-            api.getData(body).enqueue(object : Callback<CovidInfo> {
-                override fun onResponse(call: Call<CovidInfo>, response: Response<CovidInfo>) {
-                    callback.showData(Result.success(response.body()))
-                }
+    override fun getData(body:RequestBody){
+           GlobalScope.launch(Dispatchers.IO) {
+               api.getData().enqueue(object : Callback<CovidInfo> {
+                   override fun onResponse(call: Call<CovidInfo>, response: Response<CovidInfo>) {
+                       callback.showData(Result.success(response.body()))
+                   }
 
-                override fun onFailure(call: Call<CovidInfo>, t: Throwable) {
-                    callback.showData(Result.failure(t))
-                }
+                   override fun onFailure(call: Call<CovidInfo>, t: Throwable) {
+                       callback.showData(Result.failure(t))
+                   }
 
-            })
-        }
-    }
-    override fun getCurrentData(){
-        GlobalScope.launch(Dispatchers.IO) {
-            api.getData().enqueue(object : Callback<CovidInfo> {
-                override fun onResponse(call: Call<CovidInfo>, response: Response<CovidInfo>) {
-                    callback.showData(Result.success(response.body()))
-                }
-
-                override fun onFailure(call: Call<CovidInfo>, t: Throwable) {
-                    callback.showData(Result.failure(t))
-                }
-
-            })
-        }
-    }
+               })
+           }
+       }
 }

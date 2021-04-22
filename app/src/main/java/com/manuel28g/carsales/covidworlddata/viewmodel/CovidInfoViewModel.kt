@@ -1,7 +1,9 @@
 package com.manuel28g.carsales.covidworlddata.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 
 import com.manuel28g.carsales.covidworlddata.helpers.RetrofitHelper
 import com.manuel28g.carsales.covidworlddata.model.CovidInfo
@@ -9,103 +11,61 @@ import com.manuel28g.carsales.covidworlddata.model.RequestBody
 import com.manuel28g.carsales.covidworlddata.repository.CovidData
 import com.manuel28g.carsales.covidworlddata.repository.CovidDataImpl
 import com.manuel28g.carsales.covidworlddata.repository.api.CovidDataAPI
-import kotlinx.coroutines.Dispatchers
 
 import kotlinx.coroutines.launch
-import okhttp3.internal.notifyAll
 
 import java.text.SimpleDateFormat
 import java.util.*
 
-class CovidInfoViewModel(application: Application): AndroidViewModel(application),
-    CovidInfoCallback{
-    private var mApi : CovidDataAPI = RetrofitHelper().getInstance()
-    private var mRepository:CovidData = CovidDataImpl(mApi,this)
-    private var mFormatter = SimpleDateFormat("yyyy-MM-dd")
-    private var monthNameFormat = SimpleDateFormat("MMMM")
-    private var mDayConsulted: MutableLiveData<Int> = MutableLiveData()
-    private var mMonthConsulted: MutableLiveData<String> = MutableLiveData()
-    private var mYearConsulted: MutableLiveData<Int> = MutableLiveData()
-    private var mConfirmedCases: MutableLiveData<Long> = MutableLiveData()
-    private var mDeathPeople: MutableLiveData<Long> = MutableLiveData()
-    private var mIsApiResponse: MutableLiveData<Boolean> = MutableLiveData()
-    private var mMinDate:Long? = null
-    private var mMaxDate:Long? = null
+class CovidInfoViewModel: ViewModel(), CovidInfoCallback{
+    private var api : CovidDataAPI = RetrofitHelper().getInstance()
+    private var repository:CovidData = CovidDataImpl(api,this)
+    private var formatter = SimpleDateFormat("dd-MM-yyyy")
+    private var dateConsulted: MutableLiveData<String> = MutableLiveData()
+    private var confirmedCases: MutableLiveData<Long> = MutableLiveData()
+    private var deathPeople: MutableLiveData<Long> = MutableLiveData()
+    private var isApiResponse: MutableLiveData<Boolean> = MutableLiveData()
 
 
-
-    fun getMaxDate():Long{
-        if(mMaxDate == null) {
-            var previousDay: Calendar = Calendar.getInstance().clone() as Calendar
-            previousDay.add(Calendar.DAY_OF_MONTH, -1)
-            mMaxDate = previousDay.timeInMillis
-        }
-        return mMaxDate!!
-    }
-
-    fun getMinDate():Long{
-        if(mMinDate == null) {
-            var minDate: Calendar = Calendar.getInstance().clone() as Calendar
-            minDate.add(Calendar.DAY_OF_MONTH, -1)
-            minDate.set(Calendar.MONTH, 2)
-            minDate.set(Calendar.YEAR, 2020)
-            mMinDate = minDate.timeInMillis
-        }
-        return mMinDate!!
+    fun getData(date: Date){
+        val body = RequestBody(formatter.format(date))
+        getData(body)
     }
 
     fun getActualDate(){
-        mIsApiResponse.value = false
-        viewModelScope.launch(Dispatchers.IO){
-            mRepository.getCurrentData()
-        }
+        val body = RequestBody(formatter.format(Date()))
+        getData(body)
     }
 
     fun isApiResponse():LiveData<Boolean>{
-        return mIsApiResponse
+        return isApiResponse
     }
 
-    fun getDay():LiveData<Int>{
-        return mDayConsulted
-    }
-
-    fun getMonth():LiveData<String>{
-        return mMonthConsulted
-    }
-
-    fun getYear():LiveData<Int>{
-        return mYearConsulted
+    fun getDate():LiveData<String>{
+        return dateConsulted
     }
 
     fun getConfirmedCases():LiveData<Long>{
-        return mConfirmedCases
+        return confirmedCases
     }
 
     fun getTotalDeaths():LiveData<Long>{
-        return mDeathPeople
+        return deathPeople
     }
 
-    fun getData(body: String){
-        mIsApiResponse.value = false
-        viewModelScope.launch(Dispatchers.IO){
-            mRepository.getData(body)
+    private fun getData(body: RequestBody){
+        viewModelScope.launch {
+            repository.getData(body)
         }
     }
 
     override fun showData(result: Result<CovidInfo?>) {
-        mIsApiResponse.value = true
         if(result.isSuccess){
             val response :CovidInfo? = result.getOrNull()
-            val date:Calendar = Calendar.getInstance().clone() as Calendar
-            date.time = mFormatter.parse(response?.data?.date)
-            viewModelScope.launch(Dispatchers.Main) {
-                mDayConsulted.value =  date.get(Calendar.DAY_OF_MONTH)
-                mYearConsulted.value = date.get(Calendar.YEAR)
-                mMonthConsulted.value = monthNameFormat.format(date.time)
-                mConfirmedCases.value = response?.data?.confirmed
-                mDeathPeople.value = response?.data?.deaths
-                mIsApiResponse.value = true
-            }
+            dateConsulted.postValue(response?.data?.date)
+            confirmedCases.postValue(response?.data?.confirmed)
+            deathPeople.postValue(response?.data?.deaths)
+            isApiResponse.postValue(true)
         }
         else{
             //TODO show message

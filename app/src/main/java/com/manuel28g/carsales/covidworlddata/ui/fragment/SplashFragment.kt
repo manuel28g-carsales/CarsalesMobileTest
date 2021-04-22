@@ -32,6 +32,6 @@ class SplashFragment: Fragment() {
 
 
     private fun goToLoading(){
-        findNavController().navigate(R.id.action_splash_to_home)
+        findNavController().navigate(R.id.action_splash_to_loading)
     }
 }
