@@ -41,8 +41,16 @@ class HomeFragment: Fragment(), DatePickerDialog.OnDateSetListener{
 
         mDatePickerDialog.datePicker.maxDate = viewModel.getMaxDate()
         mDatePickerDialog.datePicker.minDate = viewModel.getMinDate()
-        callData(null)
         mBinding.viewModel = viewModel
+
+        callData(null)
+        viewModel.andErrorOccurs().observe(viewLifecycleOwner,  {
+            if(it){
+                viewModel.resetError()
+                navigateToError()
+            }
+        })
+
         return mBinding.root
     }
 
@@ -59,7 +67,7 @@ class HomeFragment: Fragment(), DatePickerDialog.OnDateSetListener{
                 "-${dayOfMonth.toString().padStart(2,'0')}")
     }
 
-    fun navigateToError(){
+    private fun navigateToError(){
         findNavController().navigate(R.id.action_home_to_error)
     }
 
