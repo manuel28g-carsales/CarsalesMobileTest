@@ -3,6 +3,7 @@ This is a challenge created by Carsales to the selection process, this app show 
 
 
 Loading content
+
 ![](https://media1.giphy.com/media/9lROmeJazd4mFvtmPm/giphy.gif)
 
 
