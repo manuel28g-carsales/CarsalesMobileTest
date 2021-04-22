@@ -59,4 +59,8 @@ class HomeFragment: Fragment(), DatePickerDialog.OnDateSetListener{
                 "-${dayOfMonth.toString().padStart(2,'0')}")
     }
 
+    fun navigateToError(){
+        findNavController().navigate(R.id.action_home_to_error)
+    }
+
 }
