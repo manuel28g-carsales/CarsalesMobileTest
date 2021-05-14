@@ -22,7 +22,17 @@
     <fragment
         android:id="@+id/home"
         tools:layout="@layout/fragment_home"
-        android:name="com.manuel28g.carsales.covidworlddata.ui.fragment.HomeFragment"/>
+        android:name="com.manuel28g.carsales.covidworlddata.ui.fragment.HomeFragment">
+
+        <action
+            android:id="@+id/action_home_to_error"
+            app:destination="@id/error"
+            app:popUpTo="@id/home"/>
+    </fragment>
+    <fragment
+        android:id="@+id/error"
+        tools:layout="@layout/fragment_error_data"
+        android:name="com.manuel28g.carsales.covidworlddata.ui.fragment.ErrorDataFragment"/>
 
 
 </navigation>

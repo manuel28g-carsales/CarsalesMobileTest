@@ -4,4 +4,6 @@
     <string name="confirmed_cases_title">Casos confirmados: %d</string>
     <string name="death_people_title">Cantidad de personas fallecidas: %d</string>
     <string name="date_title_format">%d de %s del %d</string>
+    <string name="retry_button">Reintentar</string>
+    <string name="error_title">Algo salió mal al intentar obtener los datos</string>
 </resources>

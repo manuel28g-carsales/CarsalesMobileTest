@@ -5,22 +5,20 @@ import androidx.lifecycle.*
 
 import com.manuel28g.carsales.covidworlddata.helpers.RetrofitHelper
 import com.manuel28g.carsales.covidworlddata.model.CovidInfo
-import com.manuel28g.carsales.covidworlddata.model.RequestBody
 import com.manuel28g.carsales.covidworlddata.repository.CovidData
 import com.manuel28g.carsales.covidworlddata.repository.CovidDataImpl
 import com.manuel28g.carsales.covidworlddata.repository.api.CovidDataAPI
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 
 import kotlinx.coroutines.launch
-import okhttp3.internal.notifyAll
 
 import java.text.SimpleDateFormat
 import java.util.*
 
-class CovidInfoViewModel(application: Application): AndroidViewModel(application),
-    CovidInfoCallback{
+class CovidInfoViewModel: ViewModel() {
     private var mApi : CovidDataAPI = RetrofitHelper().getInstance()
-    private var mRepository:CovidData = CovidDataImpl(mApi,this)
+    private var mRepository:CovidData = CovidDataImpl(mApi)
     private var mFormatter = SimpleDateFormat("yyyy-MM-dd")
     private var monthNameFormat = SimpleDateFormat("MMMM")
     private var mDayConsulted: MutableLiveData<Int> = MutableLiveData()
@@ -31,7 +29,7 @@ class CovidInfoViewModel(application: Application): AndroidViewModel(application
     private var mIsApiResponse: MutableLiveData<Boolean> = MutableLiveData()
     private var mMinDate:Long? = null
     private var mMaxDate:Long? = null
-
+    private var mError = MutableLiveData<Boolean>()
 
 
     fun getMaxDate():Long{
@@ -56,13 +54,35 @@ class CovidInfoViewModel(application: Application): AndroidViewModel(application
 
     fun getActualDate(){
         mIsApiResponse.value = false
-        viewModelScope.launch(Dispatchers.IO){
-            mRepository.getCurrentData()
+        viewModelScope.launch(Dispatchers.IO) {
+            mRepository.getCurrentData().map {
+                mapData(it)
+            }.catch {
+                mError.postValue(true)
+            }.collect()
+
+        }
+    }
+
+    private fun mapData(info: CovidInfo?){
+        val date:Calendar = Calendar.getInstance().clone() as Calendar
+        date.time = mFormatter.parse(info?.data?.date)
+        viewModelScope.launch(Dispatchers.Main) {
+            mDayConsulted.value =  date.get(Calendar.DAY_OF_MONTH)
+            mYearConsulted.value = date.get(Calendar.YEAR)
+            mMonthConsulted.value = monthNameFormat.format(date.time)
+            mConfirmedCases.value = info?.data?.confirmed
+            mDeathPeople.value = info?.data?.deaths
+            mIsApiResponse.value = true
         }
     }
 
     fun isApiResponse():LiveData<Boolean>{
         return mIsApiResponse
+    }
+
+    fun resetError(){
+        mError.value = false
     }
 
     fun getDay():LiveData<Int>{
@@ -85,30 +105,18 @@ class CovidInfoViewModel(application: Application): AndroidViewModel(application
         return mDeathPeople
     }
 
-    fun getData(body: String){
-        mIsApiResponse.value = false
-        viewModelScope.launch(Dispatchers.IO){
-            mRepository.getData(body)
-        }
+    fun andErrorOccurs():LiveData<Boolean>{
+        return mError
     }
 
-    override fun showData(result: Result<CovidInfo?>) {
-        mIsApiResponse.value = true
-        if(result.isSuccess){
-            val response :CovidInfo? = result.getOrNull()
-            val date:Calendar = Calendar.getInstance().clone() as Calendar
-            date.time = mFormatter.parse(response?.data?.date)
-            viewModelScope.launch(Dispatchers.Main) {
-                mDayConsulted.value =  date.get(Calendar.DAY_OF_MONTH)
-                mYearConsulted.value = date.get(Calendar.YEAR)
-                mMonthConsulted.value = monthNameFormat.format(date.time)
-                mConfirmedCases.value = response?.data?.confirmed
-                mDeathPeople.value = response?.data?.deaths
-                mIsApiResponse.value = true
-            }
-        }
-        else{
-            //TODO show message
+    fun getData(body: String){
+        mIsApiResponse.value = false
+        viewModelScope.launch(Dispatchers.IO) {
+            mRepository.getData(body).map {
+                mapData(it)
+            }.catch {
+                mError.postValue(true)
+            }.collect()
         }
     }
 
