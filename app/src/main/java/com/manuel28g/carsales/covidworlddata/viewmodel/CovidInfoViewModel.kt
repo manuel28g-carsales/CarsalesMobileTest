@@ -1,24 +1,18 @@
 package com.manuel28g.carsales.covidworlddata.viewmodel
 
-import android.app.Application
 import androidx.lifecycle.*
 
-import com.manuel28g.carsales.covidworlddata.helpers.RetrofitHelper
 import com.manuel28g.carsales.covidworlddata.model.CovidInfo
 import com.manuel28g.carsales.covidworlddata.repository.CovidData
-import com.manuel28g.carsales.covidworlddata.repository.CovidDataImpl
-import com.manuel28g.carsales.covidworlddata.repository.api.CovidDataAPI
+
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
-
 import kotlinx.coroutines.launch
 
 import java.text.SimpleDateFormat
 import java.util.*
 
-class CovidInfoViewModel: ViewModel() {
-    private var mApi : CovidDataAPI = RetrofitHelper().getInstance()
-    private var mRepository:CovidData = CovidDataImpl(mApi)
+class CovidInfoViewModel(var mRepository: CovidData): ViewModel() {
     private var mFormatter = SimpleDateFormat("yyyy-MM-dd")
     private var monthNameFormat = SimpleDateFormat("MMMM")
     private var mDayConsulted: MutableLiveData<Int> = MutableLiveData()
