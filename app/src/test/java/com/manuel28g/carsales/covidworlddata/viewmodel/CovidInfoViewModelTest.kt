@@ -22,6 +22,8 @@ import org.junit.runners.JUnit4
 import org.mockito.Mock
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import java.lang.IllegalStateException
+import java.lang.NullPointerException
 
 import java.text.SimpleDateFormat
 
@@ -64,6 +66,9 @@ class CovidInfoViewModelTest {
 
         whenever(repository.getCurrentData()).thenReturn(flow { emit(getBaseResponse()) })
         whenever(repository.getData("2021-03-18")).thenReturn(flow{emit(getBaseResponse())})
+        whenever(repository.getData("18-03-2021")).thenReturn(flow{throw NullPointerException()})
+        whenever(repository.getData("2025-03-18")).thenReturn(flow{throw IllegalStateException()})
+        whenever(repository.getData("2000-03-18")).thenReturn(flow{throw IllegalStateException()})
 
         viewModel = CovidInfoViewModel(repository,Dispatchers.Main)
 
@@ -149,5 +154,39 @@ class CovidInfoViewModelTest {
         assertEquals(18,viewModel.getDay().value)
         assertEquals("March",viewModel.getMonth().value)
         assertEquals(2021,viewModel.getYear().value)
+    }
+
+    /**
+     * This function test the functionality of the consult data when the
+     * string format is no the correct
+     */
+    @Test
+    fun getDataErrorWithoutFormatString()= runBlockingTest {
+        assertNull(viewModel.andErrorOccurs().value)
+        viewModel.getData("18-03-2021")
+        assertNotNull(viewModel.andErrorOccurs().value)
+        assertTrue(viewModel.andErrorOccurs().value!!)
+    }
+
+    /**
+     * Test function getData with future date
+     */
+    @Test
+    fun getDataErrorWithFutureDate()= runBlockingTest {
+        assertNull(viewModel.andErrorOccurs().value)
+        viewModel.getData("2025-03-18")
+        assertNotNull(viewModel.andErrorOccurs().value)
+        assertTrue(viewModel.andErrorOccurs().value!!)
+    }
+
+    /**
+     * Test function getData with a old date than May 2020
+     */
+    @Test
+    fun getDataErrorWithOlderDate()= runBlockingTest {
+        assertNull(viewModel.andErrorOccurs().value)
+        viewModel.getData("2000-03-18")
+        assertNotNull(viewModel.andErrorOccurs().value)
+        assertTrue(viewModel.andErrorOccurs().value!!)
     }
 }
