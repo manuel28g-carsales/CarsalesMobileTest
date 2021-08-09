@@ -2,7 +2,7 @@ ext{
     kotlin_version = "1.4.31"
     nav_version = "2.3.5"
     retrofit_version = "2.7.1"
-
+    mockito_version = "3.2.0"
 
     localPropertiesFile = rootProject.file("local.properties")
     localProperties = new Properties()

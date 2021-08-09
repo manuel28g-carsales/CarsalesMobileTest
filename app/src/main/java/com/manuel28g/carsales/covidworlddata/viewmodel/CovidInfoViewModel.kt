@@ -1,24 +1,20 @@
 package com.manuel28g.carsales.covidworlddata.viewmodel
 
-import android.app.Application
 import androidx.lifecycle.*
 
-import com.manuel28g.carsales.covidworlddata.helpers.RetrofitHelper
 import com.manuel28g.carsales.covidworlddata.model.CovidInfo
 import com.manuel28g.carsales.covidworlddata.repository.CovidData
-import com.manuel28g.carsales.covidworlddata.repository.CovidDataImpl
-import com.manuel28g.carsales.covidworlddata.repository.api.CovidDataAPI
+
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
-
 import kotlinx.coroutines.launch
 
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.coroutines.CoroutineContext
 
-class CovidInfoViewModel: ViewModel() {
-    private var mApi : CovidDataAPI = RetrofitHelper().getInstance()
-    private var mRepository:CovidData = CovidDataImpl(mApi)
+class CovidInfoViewModel(private var mRepository: CovidData,
+                         private val mDispatcher:CoroutineContext): ViewModel() {
     private var mFormatter = SimpleDateFormat("yyyy-MM-dd")
     private var monthNameFormat = SimpleDateFormat("MMMM")
     private var mDayConsulted: MutableLiveData<Int> = MutableLiveData()
@@ -54,7 +50,7 @@ class CovidInfoViewModel: ViewModel() {
 
     fun getActualDate(){
         mIsApiResponse.value = false
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(mDispatcher) {
             mRepository.getCurrentData().map {
                 mapData(it)
             }.catch {
@@ -111,7 +107,7 @@ class CovidInfoViewModel: ViewModel() {
 
     fun getData(body: String){
         mIsApiResponse.value = false
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(mDispatcher) {
             mRepository.getData(body).map {
                 mapData(it)
             }.catch {

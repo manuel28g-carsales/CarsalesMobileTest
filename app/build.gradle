@@ -43,6 +43,9 @@ android {
     dataBinding {
         enabled = true
     }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
@@ -63,9 +66,14 @@ dependencies {
 
     //Test Libraries
     testImplementation 'junit:junit:4.+'
+    testImplementation 'androidx.arch.core:core-testing:2.1.0'
+    androidTestImplementation 'androidx.arch.core:core-testing:2.1.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.10.0'
+    testImplementation "org.mockito.kotlin:mockito-kotlin:$mockito_version"
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.2"
 
 
     //Retrofit: Client HTTP to call APIs
